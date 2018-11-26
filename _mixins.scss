@@ -1,0 +1,227 @@
+/* Handy mixins from https://engageinteractive.co.uk/blog/top-10-scss-mixins */
+
+/*
+	Retina images
+	example:
+	.element {
+		@include retina {
+			background-image: url(../img/background@2x.png);
+		}
+	}
+*/
+
+@mixin retina {
+	@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+	only screen and (-moz-min-device-pixel-ratio: 1.5),
+	only screen and (-o-min-device-pixel-ratio: 3 / 2),
+	only screen and (min-device-pixel-ratio: 1.5),
+	only screen and (min-resolution: 1.5dppx) {
+		@content;
+	}
+}
+
+
+/*
+	Responsive ratio: Used for creating scalable elements that maintain the same ratio:
+	.element {
+		@include responsive-ratio(400, 300);
+	}
+*/
+
+@mixin responsive-ratio($x,$y, $pseudo: false) {
+	$padding: unquote( ( $y / $x ) * 100 + '%' );
+
+	@if $pseudo {
+		&::before {
+			@include pseudo($pos: relative);
+			width: 100%;
+			padding-top: $padding;
+		}
+	} @else {
+		padding-top: $padding;
+	}
+}
+
+
+/*
+	Icon: For using fontastic icons in pseudo elements
+*/
+
+@mixin icon-css($content: false) {
+	@if $content {
+		content: '#{$content}';
+	}
+	display: block;
+	font-family: 'icon-font-family' !important;
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+@mixin antialias {
+	font-smoothing: antialiased;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+@mixin appearance($val: none) {
+	-webkit-appearance: $val;
+	-moz-appearance: $val;
+	appearance: $val;
+}
+
+
+@mixin font-size($sizes) {
+	@each $breakpoint, $size in $sizes {
+		@if $breakpoint == base {
+			font-size: $size;
+		} @else {
+			@include mq($breakpoint) {
+				font-size: $size;
+			}
+		}
+	}
+}
+
+
+@mixin pos($pos, $t, $r, $b, $l, $z: false, $hardware: true) {
+	@if $pos == fixed and $hardware { @include hardware; }
+	@if $pos { position: $pos; }
+	@if $t { top: $t; }
+	@if $r { right: $r; }
+	@if $b { bottom: $b; }
+	@if $l { left: $l; }
+	@if $z { z-index: $z; }
+}
+
+
+@mixin unlist($margin: true, $padding: true) {
+	@if $margin {
+		@if $margin == 'vertical' {
+			@include flush--ends;
+		} @elseif $margin == 'horizontal' {
+			@include flush--sides;
+		} @else {
+			margin: 0;
+		}
+	}
+	@if $padding {
+		padding: 0;
+	}
+	list-style: none;
+}
+
+
+
+/* Handy mixins from https://marksheet.io/sass-mixins.html */
+
+/* Create Overlay */
+@mixin overlay() {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+/* Usage: 
+.modal-background{
+  @include overlay();
+  background: black;
+  opacity: 0.9;
+} */
+
+/* Prevents rewriting vendor prefixes  */
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+/* Usage: 
+.box{
+  @include border-radius(3px);
+} */
+
+/* If you want a parameter to have a default value while providing the possibility to set one occasionally,
+you can create optional paramaters: */
+@mixin label($text: "Code", $background: $yellow, $color: rgba(black, 0.5)) {
+  position: relative;
+  &:before{
+    background: $background;
+    color: $color;
+    content: $text;
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    height: 1rem;
+    left: 0;
+    letter-spacing: 0.1em;
+    line-height: 1rem;
+    padding: 0 0.5em;
+    position: absolute;
+    text-transform: uppercase;
+    top: 0;
+  }
+}
+/* Usage:
+  div.highlighter-rouge{
+    @include label();
+    &.css{
+      @include label("CSS", $blue, white);
+    }
+    &.scss{
+      @include label("SCSS", #c69, white);
+    }
+  }
+  */
+  
+  
+/* Handy mixins from https://medium.com/@justinbrazeau/10-useful-sass-mixins-for-automation-833cdee9d69b */
+
+@mixin background-gradient($start-color, $end-color, $orientation) { 
+  background: $start-color;
+
+  @if $orientation == 'vertical' {
+    background: -webkit-linear-gradient(top, $start-color, $end-color);
+    background: linear-gradient(to bottom, $start-color, $end-color);
+  } @else if $orientation == 'horizontal' {
+    background: -webkit-linear-gradient(left, $start-color, $end-color);
+    background: linear-gradient(to right, $start-color, $end-color);
+  } @else {
+    background: -webkit-radial-gradient(center, ellipse cover, $start-color, $end-color);
+    background: radial-gradient(ellipse at center, $start-color, $end-color);
+  }
+}
+ /* Usage:
+ $start-color, $end-color, $orientation - vertical/horizontal/radial
+ .foo {
+    @include background-gradient(red, black, 'vertical');
+  }
+  Output
+  .foo {
+    background: -webkit-linear-gradient(top, red, black);
+    background: linear-gradient(to bottom, red, black);
+} */
+
+
+@mixin font-face($font-name, $file-name, $weight: normal, $style: normal) { 
+  @font-face {
+    font-family: quote($font-name);
+    src: url($file-name + '.eot');
+    src: url($file-name + '.eot?#iefix')  format('embedded-opentype'),
+         url($file-name + '.woff') format('woff'),
+         url($file-name + '.ttf')  format('truetype'),
+         url($file-name + '.svg##{$font-name}')  format('svg');
+    font-weight: $weight;
+    font-style: $style;
+  }
+ }
+ /* Usage
+@include font-face('gotham', '/fonts/gotham'); */
